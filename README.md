@@ -89,7 +89,7 @@ local message = "<Your_message>"
 pushService:sendPushMessageToUser(userName,message,App42CallBack)
 ```
 
-__Create Game :__ To challenge your friend to play game with you, you have to create a game using our Storage Service API.
+__Create Game Play:__ To challenge your friend to play game with you, you have to create a game using our Storage Service API.
 
 
 ```
@@ -102,7 +102,7 @@ json.next = "<Next_user>"
 storageService:insertJSONDocument(dbName,collectionName, json,App42CallBack)  
 ```
 
-__Update Game:__ While playing game , you have to use our Storage Service API to update the game.
+__Update Game Play:__ While playing game , you have to use our Storage Service API to update the game.
  
 Game updating has been done in App42APIServices.lua
 
