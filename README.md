@@ -102,7 +102,7 @@ json.next = "<Next_user>"
 storageService:insertJSONDocument(dbName,collectionName, json,App42CallBack)  
 ```
 
-_Update Game:__ While playing game , you have to use our Storage Service API to update the game.
+__Update Game:__ While playing game , you have to use our Storage Service API to update the game.
  
 Game updating has been done in App42APIServices.lua
 
