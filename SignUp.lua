@@ -20,45 +20,15 @@ local function fieldHandler( event )
   end  
 return true
 end     
+
 function signUpScene:createScene( event )
 	local screenGroup = self.view	
-  image = display.newImage( "images/background.png" )
-	screenGroup:insert( image )
-  
-  local headerTitle = display.newText("Tic Tac Toe",0,0,native.systemFontBold,32)
-	headerTitle.x, headerTitle.y = display.contentWidth * 0.5, 25
-	screenGroup:insert( headerTitle )
-	registerButton =  require("widget").newButton
-  {
-    left = (display.contentWidth-130)/1,
-    top = display.contentHeight - 180,
-    label = "Register",
-    width = 100, height = 40,
-    cornerRadius = 4,
-    onEvent = function(event) 
-      if "ended" == event.phase then
---        App42APIServices:registerUser(userNameTextField,passTextField,emailTextField)
-        App42APIServices:authenticateUser("Vishnu","123")
-      end
-    end
-  }
-  signInButton =  require("widget").newButton
-  {
-    left = (display.contentWidth-260)/1,
-    top = display.contentHeight - 180,
-    label = "SignIn",
-    width = 100, height = 40,
-    cornerRadius = 2,
-    onEvent = function(event) 
-      if "ended" == event.phase then
-        App42APIServices:authenticateUser("sachin","123")
---        App42APIServices:authenticateUser(userNameTextField,passTextField)
-      end
-    end
-  }
 end
 function signUpScene:enterScene( event )
-	local group = self.view
+	local screenGroup = self.view
+  image = display.newImage( "images/background.png" )
+	screenGroup:insert( image )
+
   nameLabel = display.newText ( "Name:", 60, 130, native.systemFontBold, 14)
   passwordLabel = display.newText ( "Password:", 60, 170, native.systemFontBold, 14)
   emailLabel = display.newText ( "Email:", 60, 210, native.systemFontBold, 14)
@@ -78,11 +48,41 @@ function signUpScene:enterScene( event )
   emailField:addEventListener("userInput", fieldHandler)
   emailField.inputType = "email"
   emailField.name = "emailField"
-  registerButton.isVisible = true
-  signInButton.isVisible = true
+  
+  local headerTitle = display.newText("Tic Tac Toe",0,0,native.systemFontBold,32)
+	headerTitle.x, headerTitle.y = display.contentWidth * 0.5, 25
+	screenGroup:insert( headerTitle )
+	registerButton =  require("widget").newButton
+  {
+    left = (display.contentWidth-130)/1,
+    top = display.contentHeight - 180,
+    label = "Register",
+    width = 100, height = 40,
+    cornerRadius = 4,
+    onEvent = function(event) 
+      if "ended" == event.phase then
+        App42APIServices:registerUser(userNameTextField,passTextField,emailTextField)
+      end
+    end
+  }
+  signInButton =  require("widget").newButton
+  {
+    left = (display.contentWidth-260)/1,
+    top = display.contentHeight - 180,
+    label = "SignIn",
+    width = 100, height = 40,
+    cornerRadius = 2,
+    onEvent = function(event) 
+      if "ended" == event.phase then
+        App42APIServices:authenticateUser(userNameTextField,passTextField)
+      end
+    end
+  }
+  
 end
+
 function signUpScene:exitScene( event )
-	local group = self.view
+	local screenGroup = self.view
   registerButton.isVisible = false
   signInButton.isVisible = false
   nameField:removeSelf()
@@ -96,7 +96,7 @@ function signUpScene:exitScene( event )
   emailLabel.isVisible = false  
 end
 function signUpScene:destroyScene( event )
-	local group = self.view
+	local screenGroup = self.view
 	display.remove(registerButton)
 	display.remove(signInButton)
 end

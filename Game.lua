@@ -137,7 +137,7 @@ end
 
 function valueEvent(event)
   local px = event.target.px
-  local py  = event.target.py=
+  local py  = event.target.py
   if isTurnClick ==  false then
     if board[px][py] ~= nil then
       addPiece(px,py,playerTurn)
