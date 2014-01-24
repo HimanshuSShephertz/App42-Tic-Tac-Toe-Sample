@@ -39,7 +39,7 @@ function Storage:setCollectionName(_collectionName)
   self.collectionName = _collectionName
 end
 function Storage:getStrResponse()
-    return tostring(self.json)
+    return self.json
 end
 function Storage:setStrResponse(_json)
     self.json = _json  

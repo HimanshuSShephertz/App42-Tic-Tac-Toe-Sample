@@ -2,6 +2,7 @@ local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 local widget = require( "widget" )
 local App42API = require( "App42-Lua-API.App42API" )
+local JSON = require( "App42-Lua-API.JSON" )
 local tictacsprites = require( "tictactoe_sprites" )
 local App42APIServices = require("App42APIServices")
 -- Define the board and turn variable
@@ -10,9 +11,70 @@ local playerTurn = 1
 local isTurnClick = false
 local pieces = nil
 local opponent = ""
+local isExit = false
+-- Called when the scene's view does not exist:
+function scene:createScene( event )
+	local group = self.view
+end
+
+
+-- Called immediately after scene has moved onscreen:
+function scene:enterScene( event )
+	local group = self.view
+  
+  isTurnClick = false
+  print(isExit)
+  print(isTurnClick)
+  isExit = false
+  if isExit == false then
+--  if Constant.UserGameObject["board"] ~= nil then
+    checkBoard(Constant.UserGameObject["board"])
+    setPlayerTurn(Constant.UserGameObject["user_two"],Constant.UserGameObject["user_one"])
+--  end
+	-- Load the background image
+	local bg = display.newImage( "images/tictactoe_bg.png" )
+	group:insert( bg )
+
+	-- Pieces group
+	pieces = display.newGroup( )
+	group:insert( pieces )
+	
+	-- Create an image sheet
+	imagesheet = graphics.newImageSheet( "images/tictactoe_sprites.png", tictacsprites:getSheet( ) )
+	
+	-- Add the buttons
+	for i = 1, 3 do
+		for j = 1, 3 do
+			addGridButton( group, i, j )
+		end
+	end
+  submitButton =  require("widget").newButton
+  {
+    left = (display.contentWidth-200)/1,
+    top = display.contentHeight - 40,
+    label = "Submit",
+    width = 100, height = 30,
+    onEvent = function(event) 
+      if "ended" == event.phase then
+          local gameObject = {}
+            gameObject[Constant.GameFirstUserKey] = Constant.UserGameObject["user_one"]
+            gameObject[Constant.GameSecondUserKey] = Constant.UserGameObject["user_two"]
+            gameObject[Constant.GameStateKey]=  Constant.GameStateIdle
+            gameObject[Constant.GameWinnerKey]= "";
+            gameObject[Constant.GameNextMoveKey]= opponent
+            gameObject[Constant.GameIdKey] = Constant.UserGameObject["game_id"]
+            gameObject[Constant.GameBoardKey] = board
+            App42APIServices:updateGame(gameObject,Constant.GameName..opponent)
+            storyboard.gotoScene( "Menu")   
+       end
+    end
+  }
+end
+end
 function setPlayerTurn(ownerName,remoteUser)
   if ownerName == App42API:getLoggedInUser()  then
     opponent = remoteUser
+    playerTurn = 1
   else
     playerTurn = 2 
     opponent =ownerName
@@ -70,59 +132,14 @@ function checkWinner( )
 end
 
 function okComplete( event )
-  if Constant.GameWinner == true then 
-    storyboard.gotoScene( "SignUp","slideLeft", 800)
-  end
   App42APIServices:deleteGame(Constant.UserGameObject)
 end
--- Add a piece to the board
-function addPiece( px, py,playerTurn )
-		-- Button coordinates
-		 px = px
-		 py = py
-		if playerTurn ~=0 then
-		-- Move if empty board
---      if ( board[px][py] == 0 ) then
-        -- Add the piece
-        piece = display.newImage( imagesheet, tictacsprites:getFrameIndex( "piece_" .. playerTurn ) )
-        piece:setReferencePoint( display.TopLeftReferencePoint )
-        piece.x = 36 + 95 * (px - 1)
-        piece.y = 140 + 95 * (py - 1)
-        pieces:insert( piece )
-        
-			-- Update the board
-			board[px][py] = playerTurn
-      -- Check if the game has ended
-			winner = checkWinner( )
-      if ( winner > 0 ) then
-        if winner ==2 then
-          Constant.GameWinner = true
-          native.showAlert( "Notification ", "You win.", { "OK" },okComplete )
-          
-        elseif winner ==1 then
-          Constant.GameWinner = true
-          native.showAlert( "Notification ", "You win.", { "OK" },okComplete )
-        elseif winner ==3 then
-          Constant.GameWinner = true
-          native.showAlert( "Notification ", "Match draw", { "OK" },okComplete )
-        else
-        end
-      end
-			
-			if ( playerTurn == 1 ) then
-				playerTurn = 2
-			else
-				playerTurn = 1
-			end
-		end
-	end
---end
 
 function valueEvent(event)
   local px = event.target.px
-  local py  = event.target.py
+  local py  = event.target.py=
   if isTurnClick ==  false then
-    if board[px][py] == 0 then
+    if board[px][py] ~= nil then
       addPiece(px,py,playerTurn)
       isTurnClick = true
     end
@@ -144,74 +161,43 @@ function addGridButton( group, px, py )
 	btn.isVisible = false
 	btn.isHitTestable = true
 end
-
-
--- Called when the scene's view does not exist:
-function scene:createScene( event )
-	local group = self.view
-end
-
-
--- Called immediately after scene has moved onscreen:
-function scene:enterScene( event )
-	local group = self.view
-  if Constant.UserGameObject["board"] ~= nil then
-    checkBoard(Constant.UserGameObject["board"])
-    setPlayerTurn(Constant.UserGameObject["user_two"],Constant.UserGameObject["user_one"])
-  end
-	-- Load the background image
-	local bg = display.newImage( "images/tictactoe_bg.png" )
-	group:insert( bg )
-
-	-- Pieces group
-	pieces = display.newGroup( )
-	group:insert( pieces )
-	
-	-- Create an image sheet
-	imagesheet = graphics.newImageSheet( "images/tictactoe_sprites.png", tictacsprites:getSheet( ) )
-	
-	-- Add the buttons
-	for i = 1, 3 do
-		for j = 1, 3 do
-			addGridButton( group, i, j )
+function addPiece( px, py,playerTurn )
+  	if playerTurn ~=0 then
+        piece = display.newImage( imagesheet, tictacsprites:getFrameIndex( "piece_" .. playerTurn ) )
+        piece:setReferencePoint( display.TopLeftReferencePoint )
+        piece.x = 36 + 95 * (px - 1)
+        piece.y = 140 + 95 * (py - 1)
+        pieces:insert( piece )
+			board[px][py] = playerTurn
+			winner = checkWinner( )
+      if ( winner > 0 ) then
+        if winner ==2 then
+          native.showAlert( "Notification ", "You win.", { "OK" }, okComplete )
+        elseif winner ==1 then
+          native.showAlert( "Notification ", "You win.", { "OK" }, okComplete )
+        elseif winner ==3 then
+          native.showAlert( "Notification ", "Match draw", { "OK" },okComplete )
+        else
+        end
+      end
+			
+			if ( playerTurn == 1 ) then
+				playerTurn = 2
+			else
+				playerTurn = 1
+			end
 		end
 	end
-  submitButton =  require("widget").newButton
-  {
-    left = (display.contentWidth-200)/1,
-    top = display.contentHeight - 40,
-    label = "Submit",
-    width = 100, height = 30,
-    onEvent = function(event) 
-      if "ended" == event.phase then
-          local gameObject = {}
-          if Constant.UserGameObject["user_one"] ~= nil then
-            gameObject[Constant.GameFirstUserKey] = Constant.UserGameObject["user_one"]
-            gameObject[Constant.GameSecondUserKey] = Constant.UserGameObject["user_two"]
-            gameObject[Constant.GameStateKey]=  Constant.GameStateIdle
-            gameObject[Constant.GameWinnerKey]= "";
-            gameObject[Constant.GameNextMoveKey]= opponent
-            gameObject[Constant.GameIdKey] = Constant.UserGameObject["game_id"]
-            gameObject[Constant.GameBoardKey] = board
-          end
-          App42APIServices:updateGame(gameObject,Constant.GameName..opponent)
-       end
-    end
-  }
-end
 -- Called when scene is about to move offscreen:
 function scene:exitScene( event )
 	local group = self.view
 	submitButton.isVisible = false
-	
 end
 
 
 -- Called prior to the removal of scene's "view" (display group)
 function scene:destroyScene( event )
-	local group = self.view
-	
-	
+	local group = self.views
 end
 
 

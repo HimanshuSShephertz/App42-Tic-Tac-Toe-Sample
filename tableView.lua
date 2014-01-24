@@ -1,38 +1,10 @@
--- tableView.lua, Table View Library
---
--- Version 1.4
---
--- Copyright (C) 2010 ANSCA Inc. All Rights Reserved.
---
--- Permission is hereby granted, free of charge, to any person obtaining a copy of 
--- this software and associated documentation files (the "Software"), to deal in the 
--- Software without restriction, including without limitation the rights to use, copy, 
--- modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
--- and to permit persons to whom the Software is furnished to do so, subject to the 
--- following conditions:
--- 
--- The above copyright notice and this permission notice shall be included in all copies 
--- or substantial portions of the Software.
--- 
--- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
--- INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
--- PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
--- FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
--- OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
--- DEALINGS IN THE SOFTWARE.
-
- 
 module(..., package.seeall)
  
---properties
  local screenW, screenH = display.contentWidth, display.contentHeight
 local viewableScreenW, viewableScreenH = display.viewableContentWidth, display.viewableContentHeight
 local screenOffsetW, screenOffsetH = display.contentWidth -  display.viewableContentWidth, display.contentHeight - display.viewableContentHeight
-
 local currentTarget, detailScreen, velocity, currentDefault, currentOver, prevY
 local startTime, lastTime, prevTime = 0, 0, 0
- 
---methods
  
 function showHighlight(event)
     local timePassed = system.getTimer() - startTime
@@ -57,7 +29,6 @@ function newListItemHandler(self, event)
 		local result = true        
         
         if( phase == "began" ) then
-            -- Subsequent touch events will target button even if they are outside the stageBounds of button
             display.getCurrentStage():setFocus( self )
             self.isFocus = true
 
@@ -69,7 +40,6 @@ function newListItemHandler(self, event)
             Runtime:removeEventListener("enterFrame", scrollList ) 
             Runtime:addEventListener("enterFrame", moveCat)
 
-			-- Start tracking velocity
 			Runtime:addEventListener("enterFrame", trackVelocity)
  
             if over then
@@ -111,7 +81,6 @@ function newListItemHandler(self, event)
                 local x, y = event.x, event.y
                 local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
         
-                -- Only consider this a "click", if the user lifts their finger inside button's stageBounds
                 if isWithinBounds and (dragDistance < 10 and dragDistance > -10 ) then
 					velocity = 0
                     result = self.onRelease(event)
@@ -193,16 +162,11 @@ t.x = math.floor(t.width/2) + 20
 t.y = 24 
     return t
 end
-	 
-        --setup the list view                   
         local listView = display.newGroup()
         local prevY, prevH = 0, 0
-        
-
         if cat then         
 			local catTable = {}
     
-        	--get the implicit categories
         	local prevCat = 0
         	for i=1, #challengeData do
         		if challengeData[i][cat] ~= prevCat then
@@ -212,7 +176,6 @@ end
         	end
         	
         	if order then	 
-        		--clean up the user provided order table by removing any empty categories
         		local n = 1
         		while n < #order do
 		        	if not in_table(order[n], catTable) then
@@ -221,8 +184,6 @@ end
 		        		n = n + 1
 		        	end
 		        end
-
-        		--add any categories not specified to the user order of categories
         		for i=1, #catTable do
 		        	if not in_table(catTable[i], order) then
 	        			table.insert(order, catTable[i])
@@ -271,8 +232,6 @@ end
 	            table.insert(c, g)           
 	            c[#c].yInit = g.y     
 	        end
-        	        	
-	        --iterate over the challengeData and add items to the list view
 	        for i=1, #challengeData do
 	        	if challengeData[i][cat] == h then  
  	                local thisItem = newListItem{
@@ -325,7 +284,6 @@ end
  			Runtime:removeEventListener("enterFrame", trackVelocity)
 			local i
 			for i = listView.numChildren, 1, -1 do
-				--test
 				listView[i]:removeEventListener("touch", newListItemHandler)
 				listView:remove(i)
         listView[i] = nil
@@ -349,8 +307,6 @@ function scrollList(event)
 		local friction = 0.9
 		local timePassed = event.time - lastTime
 		lastTime = lastTime + timePassed       
-
-        --turn off scrolling if velocity is near zero
         if math.abs(velocity) < .01 then
           velocity = 0
             Runtime:removeEventListener("enterFrame", scrollList )
@@ -416,8 +372,6 @@ function trackVelocity(event)
 	end
 	prevY = currentTarget.y
 end			
-
---look for an item in a table
 function in_table ( e, t )
 	for _,v in pairs(t) do
 		if (v==e) then return true end

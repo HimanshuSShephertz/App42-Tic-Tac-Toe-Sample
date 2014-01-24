@@ -1,39 +1,9 @@
--- tableView.lua, Table View Library
---
--- Version 1.4
---
--- Copyright (C) 2010 ANSCA Inc. All Rights Reserved.
---
--- Permission is hereby granted, free of charge, to any person obtaining a copy of 
--- this software and associated documentation files (the "Software"), to deal in the 
--- Software without restriction, including without limitation the rights to use, copy, 
--- modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
--- and to permit persons to whom the Software is furnished to do so, subject to the 
--- following conditions:
--- 
--- The above copyright notice and this permission notice shall be included in all copies 
--- or substantial portions of the Software.
--- 
--- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
--- INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
--- PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
--- FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
--- OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
--- DEALINGS IN THE SOFTWARE.
-
- 
 module(..., package.seeall)
- 
---properties
- local screenW, screenH = display.contentWidth, display.contentHeight
+local screenW, screenH = display.contentWidth, display.contentHeight
 local viewableScreenW, viewableScreenH = display.viewableContentWidth, display.viewableContentHeight
 local screenOffsetW, screenOffsetH = display.contentWidth -  display.viewableContentWidth, display.contentHeight - display.viewableContentHeight
-
 local currentTarget, detailScreen, velocity, currentDefault, currentOver, prevY
 local startTime, lastTime, prevTime = 0, 0, 0
- 
---methods
- 
 function showHighlight(event)
     local timePassed = system.getTimer() - startTime
  
@@ -68,10 +38,7 @@ function newListItemHandler(self, event)
 
             Runtime:removeEventListener("enterFrame", scrollList ) 
             Runtime:addEventListener("enterFrame", moveCat)
-
-			-- Start tracking velocity
 			Runtime:addEventListener("enterFrame", trackVelocity)
- 
             if over then
                 currentDefault = default
                 currentOver = over
@@ -102,7 +69,6 @@ function newListItemHandler(self, event)
 				lastTime = event.time
  
                 local dragDistance = event.y - startPos
-                --velocity = delta 
 				Runtime:removeEventListener("enterFrame", moveCat)
 	 			Runtime:removeEventListener("enterFrame", trackVelocity)
                 Runtime:addEventListener("enterFrame", scrollList )             
@@ -111,13 +77,11 @@ function newListItemHandler(self, event)
                 local x, y = event.x, event.y
                 local isWithinBounds = bounds.xMin <= x and bounds.xMax >= x and bounds.yMin <= y and bounds.yMax >= y
         
-                -- Only consider this a "click", if the user lifts their finger inside button's stageBounds
                 if isWithinBounds and (dragDistance < 10 and dragDistance > -10 ) then
 					velocity = 0
                     result = self.onRelease(event)
                 end
  
-                -- Allow touch events to be sent normally to the objects they "hit"
                 display.getCurrentStage():setFocus( nil )
                 self.isFocus = false
  
@@ -201,8 +165,6 @@ end
 
         if cat then         
 			local catTable = {}
-    
-        	--get the implicit categories
         	local prevCat = 0
         	for i=1, #gameListData do
         		if gameListData[i][cat] ~= prevCat then
@@ -210,9 +172,7 @@ end
         			prevCat = gameListData[i][cat]
         		end
         	end
-        	
         	if order then	 
-        		--clean up the user provided order table by removing any empty categories
         		local n = 1
         		while n < #order do
 		        	if not in_table(order[n], catTable) then
@@ -221,8 +181,6 @@ end
 		        		n = n + 1
 		        	end
 		        end
-
-        		--add any categories not specified to the user order of categories
         		for i=1, #catTable do
 		        	if not in_table(catTable[i], order) then
 	        			table.insert(order, catTable[i])
@@ -290,18 +248,16 @@ end
 	 
 	                thisItem.x = 0 + screenOffsetW*.5
 	                thisItem.y = prevY + prevH
-	 
-	                --save the Y and height 
 	                prevY = thisItem.y
 	                prevH = thisItem.height		
-	            end --if	            
-	        end --for
-	        	        
+                  end
+                end
+                
 	    	j = j + 1
 	    	
 	    	if not order[j] then break end		                        	
-        end --while
-        
+      end
+      
         if backgroundColor then 
         	local bgColor = display.newRect(0, 0, screenW, screenH)
         	bgColor:setFillColor(backgroundColor[1], backgroundColor[2], backgroundColor[3])
@@ -325,7 +281,6 @@ end
  			Runtime:removeEventListener("enterFrame", trackVelocity)
 			local i
 			for i = listView.numChildren, 1, -1 do
-				--test
 				listView[i]:removeEventListener("touch", newListItemHandler)
 				listView:remove(i)
         listView[i] = nil
@@ -416,8 +371,6 @@ function trackVelocity(event)
 	end
 	prevY = currentTarget.y
 end			
-
---look for an item in a table
 function in_table ( e, t )
 	for _,v in pairs(t) do
 		if (v==e) then return true end

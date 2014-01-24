@@ -59,7 +59,7 @@ function PushNotification:setTotalRecords(_totalRecords)
     self.totalRecords = _totalRecords  
 end
 function PushNotification:getStrResponse()
-    return self.userName
+    return self.json
 end
 function PushNotification:setStrResponse(_json)
     self.json = _json  

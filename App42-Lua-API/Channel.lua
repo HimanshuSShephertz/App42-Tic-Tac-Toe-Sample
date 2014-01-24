@@ -9,10 +9,10 @@ function Channel:new()
   return o
 end
 
-function Channel:getChannelName()
+function Channel:getName()
     return self.channelName
 end
-function Channel:setChannelName(_channelName)
+function Channel:setName(_channelName)
     self.channelName = _channelName  
 end
 function Channel:getDescription()

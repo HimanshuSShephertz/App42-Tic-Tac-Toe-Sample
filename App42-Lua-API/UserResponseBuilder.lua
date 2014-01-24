@@ -5,7 +5,7 @@ local User = require("App42-Lua-API.User")
 local Profile = require("App42-Lua-API.Profile")
 
 function UserResponseBuilder:buildResponse(json)
-  local user = require("App42-Lua-API.User")
+  local user =User:new()
   local usersJSONObj = App42ResponseBuilder:getServiceJSONObject("users",json)
     if usersJSONObj == nil then 
       user:setStrResponse(json)
@@ -20,7 +20,7 @@ function UserResponseBuilder:buildResponse(json)
   return user
 end
 function UserResponseBuilder:buildArrayResponse(responseString)
-  local user = require("App42-Lua-API.User")
+  local user = User:new()
   local userJSONArray = {}
   local usersJSONObj = App42ResponseBuilder:getServiceJSONObject("users",responseString)
   local userJSONObjectArray = usersJSONObj.user

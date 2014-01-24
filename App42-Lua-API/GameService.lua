@@ -17,9 +17,6 @@ local fbAccessToken = nil
 local sessionId = nil
 local selectKeys = {}
 local otherMetaHeaders = {} 
-local gameJson ={}
-local app42 = {} 
-local game =  {}  
 local resource = "game"
 local version = "1.0"
 
@@ -36,6 +33,9 @@ function GameService:createGame(gameName,description,callBack)
     local signParams =  App42Service:populateSignParams()
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams = App42Service:merge(signParams,metaHeaderParams)
+    local gameJson ={}
+    local app42 = {} 
+    local game =  {}  
     gameJson.name = gameName    
     gameJson.description = description
     game.game = gameJson

@@ -22,74 +22,38 @@ local pushService = App42API:buildPushNotificationService()
 local storageService = App42API:buildStorageService()
 local notificationList = {}
 
-function okComplete(event)
---  storyboard.gotoScene( "SignUp")
-end
-
-function getAllCallback:onSuccess(object)
-    Constant.data = object
-    storyboard.gotoScene( "Challenge","slideLeft", 1000)
-end
-function logoutCallBack:onSuccess(object)
-    storyboard.gotoScene( "SignUp", "slideLeft", 1000)
-end
-
-function gameUserListCallBack:onSuccess(object)
-  Constant.GameUserList = object:getJsonDocList()
-  for i=1, table.getn(object:getJsonDocList()) do
-      Constant.UserGameObject = object:getJsonDocList()[i]:getJsonDoc()
-  end
-    storyboard.gotoScene( "GameList","slideLeft", 1000)
-end
 function gameUserListCallBack:onException(object)
   if object:getAppErrorCode() == 2602 then
     native.showAlert( "Notification ", "You have not challenge to any one for a game.", { "OK" } )
   end
 end
 
-function deleteGameCallBack:onSuccess(object)
-    storyboard.gotoScene( "SignUp","slideLeft", 1000)
-end
 function deleteGameCallBack:onException(object)
   if object:getMessage() ~= nil then 
     native.showAlert(object:getMessage(),object:getDetails(),{"ok"} )
   end
 end
-function updateGameStorageCallBack:onSuccess(object)
-   storyboard.gotoScene( "SignUp","slideLeft", 1000)
-end
+
 function updateGameStorageCallBack:onException(object)
   if object:getMessage() ~= nil then 
     native.showAlert(object:getMessage(),object:getDetails(),{"ok"} )
   end
 end
 
-function loginCallBack:onSuccess(object)
-  Constant.sessionId = object:getSessionId()
-  App42API:setLoggedInUser(object:getUserName())
-  App42APIServices:regisetrForDevice(Constant.GameName..object:getUserName(),Constant.deviceToken,
-    DeviceType.ANDROID)
-end
 function loginCallBack:onException(object)
   if object:getMessage() ~= nil then 
     native.showAlert(object:getMessage(),object:getDetails(),{"ok"} )
   end
 end
 
-function storeDeviceCallBack:onSuccess(object)
-  storyboard.gotoScene( "Menu" ,"slideLeft", 1000)
-  native.showAlert( "Notification ", "You are successfully registered", { "OK" } )
-end
 function storeDeviceCallBack:onException(object)
   if object:getAppErrorCode() == 1700 then
-    storyboard.gotoScene( "Menu" ,"slideLeft", 1000)
+    storyboard.gotoScene( "Menu" )
   elseif object:getMessage() ~= nil then
       native.showAlert(object:getMessage(),object:getDetails(),{"Back"} ) 
   end
 end
-function pushCallBack:onSuccess(object)
-  native.showAlert( "Notification ", "Your game challenge has successfull send", { "OK" } )
-end
+
 function pushCallBack:onException(object)
   if object:getAppErrorCode() == 1700 then
     native.showAlert(object:getMessage(),object:getDetails(),{"Back"} ) 
@@ -148,10 +112,43 @@ function App42APIServices:deleteGame(gameObject)
   storageService:deleteDocumentsByKeyValue(Constant.App42DBName,collName2,Constant.GameIdKey,id,
     deleteGameCallBack)
 end
-function App42APIServices:CheckWinner()
-   native.showAlert( "Notification ", winner, { "OK" } )
-end
 function App42APIServices:logout()
    userService:logout(Constant.sessionId, logoutCallBack)
+end
+function logoutCallBack:onSuccess(object)
+    storyboard.gotoScene( "SignUp")
+end
+
+function getAllCallback:onSuccess(object)
+    Constant.data = object
+    storyboard.gotoScene( "Challenge" )
+end
+
+function gameUserListCallBack:onSuccess(object)
+  Constant.GameUserList = object:getJsonDocList()
+  for i=1, table.getn(object:getJsonDocList()) do
+      Constant.UserGameObject = object:getJsonDocList()[i]:getJsonDoc()
+  end
+    storyboard.gotoScene( "GameList")
+end
+
+function deleteGameCallBack:onSuccess(object)
+    storyboard.gotoScene( "Menu")
+end
+function updateGameStorageCallBack:onSuccess(object)
+--   storyboard.gotoScene( "Menu")
+end
+function loginCallBack:onSuccess(object)
+  Constant.sessionId = object:getSessionId()
+  App42API:setLoggedInUser(object:getUserName())
+  App42APIServices:regisetrForDevice(Constant.GameName..object:getUserName(),Constant.deviceToken,
+    DeviceType.ANDROID)
+end
+function storeDeviceCallBack:onSuccess(object)
+  storyboard.gotoScene( "Menu" )
+  native.showAlert( "Notification ", "You are successfully registered", { "OK" } )
+end
+function pushCallBack:onSuccess(object)
+  native.showAlert( "Notification ", "Your game challenge has successfull send", { "OK" } )
 end
 return App42APIServices

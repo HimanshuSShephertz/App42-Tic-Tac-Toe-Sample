@@ -32,7 +32,7 @@ function Game:setScoreList(_scoreList)
     self.scoreList = _scoreList  
 end
 function Game:getStrResponse()
-    return tostring(self.json)
+    return self.json
 end
 function Game:setStrResponse(_json)
     self.json = _json  

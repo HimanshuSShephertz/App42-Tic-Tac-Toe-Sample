@@ -17,9 +17,6 @@ local fbAccessToken = nil
 local sessionId = nil
 local selectKeys = {}
 local otherMetaHeaders = {} 
-local pushJson ={}
-local app42 = {} 
-local push =  {}  
 local resource = "push"
 local version = "1.0"
 
@@ -34,6 +31,9 @@ function PushNotificationService:storeDeviceToken(userName,deviceToken,deviceTyp
     local signParams =  App42Service:populateSignParams()
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams = App42Service:merge(signParams,metaHeaderParams)
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     pushJson.userName = userName    
     pushJson.deviceToken = deviceToken
     pushJson.type = deviceType
@@ -59,6 +59,9 @@ function PushNotificationService:createChannelForApp(channel,description,callBac
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
     local channelJSON = {}
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     pushJson.name = channel  
     pushJson.description = description    
     pushJson.expiry = Util:getUTCFormattedTimestamp()
@@ -85,13 +88,14 @@ function PushNotificationService:subscribeToChannel(channel,userName,callBack)
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
     local channelJSON = {}
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     pushJson.name = channel  
     pushJson.userName = userName    
-    pushJson.expiry = Util:getUTCFormattedTimestamp()
     channelJSON.channel = pushJson
     push.push = channelJSON
-    app42.app42 = push
-    local jsonBody  = JSON:encode(app42)
+    local jsonBody  = JSON:encode(push)
     App42Log:debug("jsonBody is : "..jsonBody)
     signParams.body =  jsonBody
     local signature =  Util:sign(App42API:getSecretKey(),signParams)
@@ -111,21 +115,22 @@ function PushNotificationService:unsubscribeFromChannel(channel,userName,callBac
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
     local channelJSON = {}
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     pushJson.name = channel  
-    pushJson.userName = userName    
-    pushJson.expiry = Util:getUTCFormattedTimestamp()
+    pushJson.userName = userName  
     channelJSON.channel = pushJson
     push.push = channelJSON
-    app42.app42 = push
-    local jsonBody  = JSON:encode(app42)
+    local jsonBody  = JSON:encode(push)
     App42Log:debug("jsonBody is : "..jsonBody)
     signParams.body =  jsonBody
     local signature =  Util:sign(App42API:getSecretKey(),signParams)
     App42Log:debug("signature is : "..signature)
     headerParams.signature = signature
     headerParams.resource = resource
-    local resourceURL = version .."/".. resource.."/subscribeToChannel/"..userName
-    RestConnector:executePost(resourceURL,queryParams,jsonBody,headerParams,callBack)  
+    local resourceURL = version .."/".. resource.."/unsubscribeToChannel/"..userName
+    RestConnector:executePut(resourceURL,queryParams,jsonBody,headerParams,callBack)  
   end
 end
 function PushNotificationService:sendPushMessageToChannel(channel,message,callBack)
@@ -137,6 +142,9 @@ function PushNotificationService:sendPushMessageToChannel(channel,message,callBa
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
     local messageJSON = {}
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     pushJson.channel = channel  
     pushJson.payload = message    
     pushJson.expiry = Util:getUTCFormattedTimestamp()
@@ -150,7 +158,7 @@ function PushNotificationService:sendPushMessageToChannel(channel,message,callBa
     App42Log:debug("signature is : "..signature)
     headerParams.signature = signature
     headerParams.resource = resource
-    local resourceURL = version .."/".. resource.."/sendPushMessageToChannel"..channel
+    local resourceURL = version .."/".. resource.."/sendPushMessageToChannel/"..channel
     RestConnector:executePost(resourceURL,queryParams,jsonBody,headerParams,callBack)  
   end
 end
@@ -162,6 +170,9 @@ function PushNotificationService:sendPushMessageToAll(message,callBack)
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
     local messageJSON = {}
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     pushJson.payload = message    
     pushJson.expiry = Util:getUTCFormattedTimestamp()
     messageJSON.message = pushJson
@@ -188,6 +199,9 @@ function PushNotificationService:sendPushMessageToUser(userName,message,callBack
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
     local messageJSON = {}
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     pushJson.userName = userName    
     pushJson.payload = message    
     pushJson.expiry = Util:getUTCFormattedTimestamp() 
@@ -215,6 +229,9 @@ function PushNotificationService:sendPushMessageToAllByType(message,deviceType,c
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
     local messageJSON = {}
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     pushJson.payload = message    
     pushJson.type = deviceType    
     pushJson.expiry = Util:getUTCFormattedTimestamp()
@@ -232,34 +249,7 @@ function PushNotificationService:sendPushMessageToAllByType(message,deviceType,c
     RestConnector:executePost(resourceURL,queryParams,jsonBody,headerParams,callBack)  
   end
 end
-function PushNotificationService:sendPushMessageToChannel(userName,message,callBack)
-  if userName==nil or userName=="" or Util:trim(userName)=="" or message==nil or message=="" 
-    or Util:trim(message)=="" then
-    Util:throwExceptionIfNullOrBlank(userName,"UserName", callBack)
-    Util:throwExceptionIfNullOrBlank(message,"Message", callBack)
-  else
-    local signParams =App42Service:populateSignParams()
-    local metaHeaderParams = App42Service:populateMetaHeaderParams()
-    local headerParams= App42Service:merge(signParams,metaHeaderParams)
-    local messageJSON = {}
-    pushJson.userName = userName  
-    pushJson.payload = message    
-    pushJson.expiry = Util:getUTCFormattedTimestamp()
-    messageJSON.message = pushJson
-    push.push = messageJSON
-    app42.app42 = push
-    local jsonBody  = JSON:encode(app42)
-    App42Log:debug("jsonBody is : "..jsonBody)
-    signParams.body =  jsonBody
-    local signature =  Util:sign(App42API:getSecretKey(),signParams)
-    App42Log:debug("signature is : "..signature)
-    headerParams.signature = signature
-    headerParams.resource = resource
-    local resourceURL = version .."/".. resource.."/sendMessage"..userName
-    RestConnector:executePost(resourceURL,queryParams,jsonBody,headerParams,callBack)  
-  end
-end
-function PushNotificationService:subscribeToChannel(userName,channelName,deviceToken,deviceType,callBack)
+function PushNotificationService:registerAndSubscribe(userName,channelName,deviceToken,deviceType,callBack)
   if userName==nil or userName=="" or Util:trim(userName)=="" or channelName==nil or channelName=="" 
     or Util:trim(channelName)=="" or deviceToken==nil or deviceToken=="" or Util:trim(deviceToken)=="" 
     or deviceType==nil or deviceType=="" or Util:trim(deviceType)=="" then
@@ -272,6 +262,9 @@ function PushNotificationService:subscribeToChannel(userName,channelName,deviceT
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
     local messageJSON = {}
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     pushJson.userName = userName    
     pushJson.channelName = channelName    
     pushJson.deviceToken = deviceToken    
@@ -299,6 +292,9 @@ function PushNotificationService:unsubscribeDeviceToChannel(userName,channelName
     local signParams =App42Service:populateSignParams()
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     pushJson.userName = userName    
     pushJson.channelName = channelName    
     pushJson.deviceToken = deviceToken 
@@ -324,7 +320,6 @@ function PushNotificationService:deleteDeviceToken(userName,deviceToken,callBack
     local signParams =App42Service:populateSignParams()
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
-    local messageJSON = {}
     queryParams.userName = userName    
     queryParams.deviceToken = deviceToken 
     signParams.userName = userName    
@@ -346,6 +341,9 @@ function PushNotificationService:sendPushMessageToGroup(message,userList,callBac
     local headerParams= App42Service:merge(signParams,metaHeaderParams)
     local messageJSON = {}
     local user= {}
+    local pushJson ={}
+    local app42 = {} 
+    local push =  {} 
     local users = {}
     user.user  = userList
     users.users = JSON:encode(user)

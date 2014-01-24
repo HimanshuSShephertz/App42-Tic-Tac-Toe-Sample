@@ -1,16 +1,16 @@
 local JSON  = require("App42-Lua-API.JSON")
 local storyboard = require( "storyboard" )
 local widget = require("widget")
-local tableView = require("GameUserListView")
-local ui = require("GameUserListUi")
+local tableView = require("tableView")
+local ui = require("ui")
 local App42API= require("App42-Lua-API.App42API")
 local App42APIServices = require("App42APIServices")
 require("Constant")
 local gameListScene = storyboard.newScene()
 display.setStatusBar( display.HiddenStatusBar ) 
-local screenOffsetW, screenOffsetH = display.contentWidth -  display.viewableContentWidth, display.contentHeight - display.viewableContentHeight,gameList, backButton, detailScreenText,image,listBackground,navBar,gameObject
+local screenOffsetW, screenOffsetH = display.contentWidth -  display.viewableContentWidth, display.contentHeight - display.viewableContentHeight,challengeList, backButton, detailScreenText,image,listBackground,navBar,gameObject
 local detailScreen = display.newGroup()
-local gameListData = {}
+local challengeData = {}
 local detailBg = display.newRect(0,0,display.contentWidth,display.contentHeight-display.screenOriginY)
 detailBg:setFillColor(255,255,255)
 detailScreen:insert(detailBg)
@@ -23,11 +23,7 @@ selected.isVisible = false
 function listButtonRelease( event )
   self = event.target
 	local id = self.id
- if Constant.GameUserList[id]["jsonDoc"]["next"] == App42API:getLoggedInUser() then
-    storyboard.gotoScene( "Game")
-  else
-    native.showAlert( "Notification ", "Wait for your apponent", { "OK" } )
-  end
+  App42APIServices:createGame(App42API:getLoggedInUser(),challengeData[id].userName)
 end
 
 function backButtonRelease( event )
@@ -35,23 +31,18 @@ function backButtonRelease( event )
 end
 
 local function scrollToTop()
-	gameList:scrollTo(topBoundary-1)
+	challengeList:scrollTo(topBoundary-1)
 end
 function gameListScene:createScene( event )
 	local group = self.view
 end
 function gameListScene:enterScene( event )
 	local group = self.view	
-  for j=1 , table.getn(Constant.GameUserList) do
-    gameListData[j] = {}
-    gameListData[j].userName = Constant.GameUserList[j]["jsonDoc"]["next"]
-    Constant.UserGameObject = Constant.GameUserList[j]["jsonDoc"]
-      if Constant.GameUserList[j]["jsonDoc"]["next"] == App42API:getLoggedInUser() then
-          gameListData[j].message = "Your Turn"
-      else
-          gameListData[j].message = Constant.GameUserList[j]["jsonDoc"]["next"].." Turn"
-      end
-    gameListData[j].image = "images/userImage.png"
+  for j=1 , table.getn(Constant.data) do
+    challengeData[j] = {}
+    challengeData[j].userName = Constant.data[j]["userName"]
+    challengeData[j].email = Constant.data[j]["email"]
+    challengeData[j].image = "images/userImage.png"
   end
 
 	image = display.newImage( "images/background.png" )
@@ -73,8 +64,8 @@ function gameListScene:enterScene( event )
   
   local topBoundary = display.screenOriginY + 40
   local bottomBoundary = display.screenOriginY + 0
-  gameList = tableView.newList{
-    gameListData=gameListData, 
+  challengeList = tableView.newList{
+    challengeData=challengeData, 
     default="images/listItemBg_over.png",
     onRelease=listButtonRelease,
     top=topBoundary,
@@ -92,29 +83,29 @@ function gameListScene:enterScene( event )
       userName.x = userName.width*0.5 + img.width + 20
       userName.y = 20
 
-      local message =  display.newText( row.message, 0, 0, native.systemFont, 12 )
-      message:setTextColor(180,180,180)
-      group:insert(message)
-      message.x = message.width*0.5 + img.width + 20
-      message.y = userName.y + userName.height + 3
+      local email =  display.newText( row.email, 0, 0, native.systemFont, 12 )
+      email:setTextColor(180,180,180)
+      group:insert(email)
+      email.x = email.width*0.5 + img.width + 20
+      email.y = userName.y + userName.height + 3
       return group   
     end 
   }
-  listBackground = display.newRect( 0, 0, gameList.width, gameList.height )
+  listBackground = display.newRect( 0, 0, challengeList.width, challengeList.height )
   listBackground:setFillColor(255,255,255)
-  gameList:insert(1,listBackground)
-  gameList.isVisible = true
+  challengeList:insert(1,listBackground)
+  challengeList.isVisible = true
 end
 
 function gameListScene:exitScene( event )
 	local group = self.view
-  gameList.isVisible = false
+  challengeList.isVisible = false
   backButton.isVisible = false
   navBar.isVisible = false
 end
 function gameListScene:destroyScene( event )
 	local group = self.view
-	display.remove(gameList)
+	display.remove(challengeList)
 	display.remove(backButton)	
 	display.remove(navBar)	
 end

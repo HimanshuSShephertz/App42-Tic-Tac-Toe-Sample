@@ -16,10 +16,7 @@ local fbAccessToken = nil
 local sessionId = ""
 local selectKeys = {}
 local otherMetaHeaders = {} 
-local queryParams =  {}    
-local userJson ={}
-local app42 = {}    
-local user =  {} 
+local queryParams =  {}  
 local resource = "user"
 local version = "1.0"
 --Create a User with userName, password & emailAddress in async mode
@@ -39,7 +36,10 @@ function UserService:createUser(userName,password,emailId,callBack)
       local signParams =App42Service:populateSignParams()
       local metaHeaderParams = App42Service:populateMetaHeaderParams()
       local headerParams = App42Service:merge(signParams,metaHeaderParams)
-      -- Creating the user JSON
+      -- Creating the user JSON        
+      local userJson ={}
+      local app42 = {}    
+      local user =  {} 
       userJson.userName = userName    
       userJson.email = emailId
       userJson.password = password
@@ -88,7 +88,10 @@ function UserService:updateEmail(userName,emailId,callBack)
   else
     local signParams =App42Service:populateSignParams()
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
-    local headerParams = App42Service:merge(signParams,metaHeaderParams)
+    local headerParams = App42Service:merge(signParams,metaHeaderParams)          
+    local userJson ={}
+    local app42 = {}    
+    local user =  {} 
     userJson.userName = userName    
     userJson.email = emailId
     user.user = userJson
@@ -135,7 +138,10 @@ function UserService:authenticate(userName,password,callBack)
     local signParams =App42Service:populateSignParams()
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams = App42Service:merge(signParams,metaHeaderParams)
-    -- Creating the user JSON
+    -- Creating the user JSON          
+    local userJson ={}
+    local app42 = {}    
+    local user =  {} 
     userJson.userName = userName  
     userJson.password = password
     user.user = userJson
@@ -160,7 +166,10 @@ function UserService:changeUserPassword(userName,oldPassword,newPassword,callBac
   else
     local signParams =App42Service:populateSignParams()
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
-    local headerParams = App42Service:merge(signParams,metaHeaderParams)
+    local headerParams = App42Service:merge(signParams,metaHeaderParams)        
+    local userJson ={}
+    local app42 = {}    
+    local user =  {} 
     userJson.userName = userName  
     userJson.oldPassword = oldPassword  
     userJson.newPassword = newPassword
@@ -186,7 +195,10 @@ function UserService:resetUserPasswordWithCredentials(userName,password,callBack
     local signParams =App42Service:populateSignParams()
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams = App42Service:merge(signParams,metaHeaderParams)
-    -- Creating the user JSON
+    -- Creating the user JSON      
+    local userJson ={}
+    local app42 = {}    
+    local user =  {} 
     userJson.userName = userName
     userJson.password = password
     user.user = userJson
@@ -209,7 +221,10 @@ function UserService:resetUserPassword(userName,callBack)
     local signParams =App42Service:populateSignParams()
     local metaHeaderParams = App42Service:populateMetaHeaderParams()
     local headerParams = App42Service:merge(signParams,metaHeaderParams)
-    -- Creating the user JSON
+    -- Creating the user JSON      
+    local userJson ={}
+    local app42 = {}    
+    local user =  {} 
     userJson.userName = userName
     user.user = userJson
     app42.app42 = user
@@ -268,7 +283,10 @@ function UserService:lockUser(userName,callBack)
    else
       local signParams =App42Service:populateSignParams()
       local metaHeaderParams = App42Service:populateMetaHeaderParams()
-      local headerParams = App42Service:merge(signParams,metaHeaderParams)
+      local headerParams = App42Service:merge(signParams,metaHeaderParams)      
+      local userJson ={}
+      local app42 = {}    
+      local user =  {} 
       userJson.userName = userName    
       user.user = userJson
       app42.app42 = user
@@ -289,7 +307,10 @@ function UserService:unlockUser(userName,callBack)
    else
       local signParams =App42Service:populateSignParams()
       local metaHeaderParams = App42Service:populateMetaHeaderParams()
-      local headerParams = App42Service:merge(signParams,metaHeaderParams)
+      local headerParams = App42Service:merge(signParams,metaHeaderParams)      
+      local userJson ={}
+      local app42 = {}    
+      local user =  {} 
       userJson.userName = userName    
       user.user = userJson
       app42.app42 = user
@@ -370,6 +391,7 @@ function UserService:logout(sessionId,callBack)
     local headerParams = App42Service:merge(signParams,metaHeaderParams)
     local sessionJson = {}
     local session = {}
+    local app42 = {}
     sessionJson.id = sessionId
     session.session = sessionJson
     app42.app42 = session
@@ -404,7 +426,10 @@ function UserService:createOrUpdateProfile(userObj,callBack)
     profileObj.pincode= profile:getPincode();
     profileObj.homeLandLine= profile:getHomeLandLine();
     profileObj.officeLandLine= profile:getOfficeLandLine();
-    profileObj.dateOfBirth= profile:getDateOfBirth();
+    profileObj.dateOfBirth= profile:getDateOfBirth();          
+    local userJson ={}
+    local app42 = {}    
+    local user =  {} 
     userJson.profileData =  profileObj
     userJson.userName= userObj:getUserName()
     user.user = userJson

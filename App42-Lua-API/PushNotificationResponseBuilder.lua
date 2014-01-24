@@ -23,9 +23,9 @@ function PushNotificationResponseBuilder:buildPushNotificationObject(pushJSONObj
   local pushNotification =  PushNotificationResponseBuilder:buildObjectFromJSONTree(pushJSONObject)
   local channelArray = {}
   if pushJSONObject.channels ~= nil then
-    local channelJSONArray = pushJSONObject.channel
+    local channelJSONArray = pushJSONObject.channels.channel
     if table.getn(channelJSONArray) > 0 then
-      for i=1, table.getn(channelArray) do
+      for i=1, table.getn(channelJSONArray) do
         channelArray[i] = PushNotificationResponseBuilder:buildChannelObject(channelJSONArray[i])
       end 
     else
@@ -38,7 +38,7 @@ end
 function PushNotificationResponseBuilder:buildChannelObject(jsonObject)
   local channelList = Channel:new();
   if(jsonObject.channelName ~= nil)then
-    channelList:setChannelName(jsonObject.channelName)
+    channelList:setName(jsonObject.channelName)
   end
   if(jsonObject.description ~= nil) then
     channelList:setDescription(jsonObject.description)
@@ -59,8 +59,8 @@ function PushNotificationResponseBuilder:buildObjectFromJSONTree(jsonObject)
   if(jsonObject.expiry ~= nil) then
     object:setExpiry(jsonObject.expiry)
   end
-  if(jsonObject.deviceType ~= nil) then
-    object:setDeviceType(jsonObject.deviceType)
+  if(jsonObject.type ~= nil) then
+    object:setType(jsonObject.type)
   end
   return object
 end

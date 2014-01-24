@@ -1,63 +1,27 @@
--- ui.lua (currently includes Button class with labels, font selection and optional event model)
-
--- Version 1.5 (works with multitouch, adds setText() method to buttons)
---
--- Copyright (C) 2010 ANSCA Inc. All Rights Reserved.
---
--- Permission is hereby granted, free of charge, to any person obtaining a copy of 
--- this software and associated documentation files (the "Software"), to deal in the 
--- Software without restriction, including without limitation the rights to use, copy, 
--- modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
--- and to permit persons to whom the Software is furnished to do so, subject to the 
--- following conditions:
--- 
--- The above copyright notice and this permission notice shall be included in all copies 
--- or substantial portions of the Software.
--- 
--- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
--- INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
--- PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
--- FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR 
--- OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
--- DEALINGS IN THE SOFTWARE.
-
 module(..., package.seeall)
-
------------------
--- Helper function for newButton utility function below
 local function newButtonHandler( self, event )
-
 	local result = true
-
 	local default = self[1]
 	local over = self[2]
-	
-	-- General "onEvent" function overrides onPress and onRelease, if present
 	local onEvent = self._onEvent
-	
 	local onPress = self._onPress
 	local onRelease = self._onRelease
-
 	local buttonEvent = {}
 	if (self._id) then
 		buttonEvent.id = self._id
 	end
-
 	local phase = event.phase
 	if "began" == phase then
 		if over then 
 			default.isVisible = false
 			over.isVisible = true
 		end
-
 		if onEvent then
 			buttonEvent.phase = "press"
 			result = onEvent( buttonEvent )
 		elseif onPress then
 			result = onPress( event )
 		end
-
-		-- Subsequent touch events will target button even if they are outside the stageBounds of button
 		display.getCurrentStage():setFocus( self, event.id )
 		self.isFocus = true
 		
@@ -69,11 +33,9 @@ local function newButtonHandler( self, event )
 
 		if "moved" == phase then
 			if over then
-				-- The rollover image should only be visible while the finger is within button's stageBounds
 				default.isVisible = not isWithinBounds
 				over.isVisible = isWithinBounds
 			end
-			
 		elseif "ended" == phase or "cancelled" == phase then 
 			if over then 
 				default.isVisible = true
@@ -81,7 +43,6 @@ local function newButtonHandler( self, event )
 			end
 			
 			if "ended" == phase then
-				-- Only consider this a "click" if the user lifts their finger inside button's stageBounds
 				if isWithinBounds then
 					if onEvent then
 						buttonEvent.phase = "release"
@@ -91,19 +52,12 @@ local function newButtonHandler( self, event )
 					end
 				end
 			end
-			
-			-- Allow touch events to be sent normally to the objects they "hit"
 			display.getCurrentStage():setFocus( self, nil )
 			self.isFocus = false
 		end
 	end
-
 	return result
 end
-
-
----------------
--- Button class
 
 function newButton( params )
 	local button, default, over, size, font, textColor, offset
@@ -120,7 +74,6 @@ function newButton( params )
 		button:insert( over, true )
 	end
 	
-	-- Public methods
 	function button:setText( newText )
 	
 		local labelText = self.text
@@ -144,14 +97,9 @@ function newButton( params )
 		if ( params.size and type(params.size) == "number" ) then size=params.size else size=20 end
 		if ( params.font ) then font=params.font else font=native.systemFontBold end
 		if ( params.textColor ) then textColor=params.textColor else textColor={ 255, 255, 255, 255 } end
-		
-		-- Optional vertical correction for fonts with unusual baselines (I'm looking at you, Zapfino)
 		if ( params.offset and type(params.offset) == "number" ) then offset=params.offset else offset = 0 end
-		
 		if ( params.emboss ) then
-			-- Make the label text look "embossed" (also adjusts effect for textColor brightness)
 			local textBrightness = ( textColor[1] + textColor[2] + textColor[3] ) / 3
-			
 			labelHighlight = display.newText( newText, 0, 0, font, size )
 			if ( textBrightness > 127) then
 				labelHighlight:setTextColor( 255, 255, 255, 20 )
@@ -194,8 +142,6 @@ function newButton( params )
 	if (params.onEvent and ( type(params.onEvent) == "function" ) ) then
 		button._onEvent = params.onEvent
 	end
-		
-	-- Set button as a table listener by setting a table method and adding the button as its own table listener for "touch" events
 	button.touch = newButtonHandler
 	button:addEventListener( "touch", button )
 
@@ -213,10 +159,6 @@ function newButton( params )
 
 	return button
 end
-
-
---------------
--- Label class
 
 function newLabel( params )
 	local labelText
@@ -240,7 +182,6 @@ function newLabel( params )
 			labelText = display.newText( params.text, 0, 0, font, size )
 			labelText:setTextColor( textColor[1], textColor[2], textColor[3], textColor[4] )
 			t:insert( labelText )
-			-- TODO: handle no-initial-text case by creating a field with an empty string?
 	
 			if ( align == "left" ) then
 				labelText.x = left + labelText.stageWidth * 0.5
@@ -253,7 +194,6 @@ function newLabel( params )
 		
 		labelText.y = top + labelText.stageHeight * 0.5
 
-		-- Public methods
 		function t:setText( newText )
 			if ( newText ) then
 				labelText.text = newText
@@ -282,8 +222,5 @@ function newLabel( params )
 			labelText:setTextColor( r, g, b, a )
 		end
 	end
-	
-	-- Return instance (as display group)
 	return t
-	
 end

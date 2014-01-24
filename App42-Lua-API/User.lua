@@ -48,7 +48,7 @@ function User:setProfile(_profile)
     self.profile = _profile  
 end
 function User:getStrResponse()
-    return tostring(self.json)
+    return self.json
 end
 function User:setStrResponse(_json)
     self.json = _json  
